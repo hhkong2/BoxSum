@@ -57,20 +57,12 @@ class MainScene extends Phaser.Scene {
     preload() {}
 
     create() {
-        // 점수 텍스트 표시
-        this.scoreText = this.add.text(GRID_WIDTH * CELL_SIZE + 30, 20, 'Score: 0', {
-            fontSize: '20px',
-            color: '#000000',
-            fontFamily: 'Arial',
-            fontStyle: 'bold',
-        });
-
         // 게임 격자 생성
         this.grid = Array.from({ length: GRID_WIDTH }, () => Array(GRID_HEIGHT).fill(null));
     
         // ▶ 미리보기 영역 흰색 배경 추가
         const previewBG = this.add.rectangle(
-            GRID_WIDTH * CELL_SIZE + 75, // x 위치 (미리보기 중앙)
+            SCREEN_WIDTH + 75, // x 위치 (미리보기 중앙)
             SCREEN_HEIGHT / 2,           // y 위치 (가운데 정렬)
             150,                         // 너비
             SCREEN_HEIGHT,              // 높이
@@ -87,6 +79,20 @@ class MainScene extends Phaser.Scene {
     
         // 첫 박스 생성
         this.spawnNewBox();
+
+        // 점수 텍스트 표시
+        this.scoreText = this.add.text(
+            SCREEN_WIDTH + 30,  // X 위치 (미리보기 오른쪽)
+            20,                           // Y 위치 (상단 여백)
+            'Score: 0',
+            {
+                fontSize: '20px',
+                color: '#000000',
+                fontFamily: 'Arial',
+                fontStyle: 'bold',
+            }
+        );
+
 
         this.input.keyboard.on('keydown-LEFT', () => {
             if (this.fallingX > 0 && !this.grid[this.fallingX - 1][this.fallingY]) {
@@ -154,7 +160,7 @@ class MainScene extends Phaser.Scene {
 
     generateRandomBoxData() {
         return {
-            number: Phaser.Math.Between(1, 5),
+            number: Phaser.Math.Between(1, 4), // 숫자 생성 
             color: Phaser.Utils.Array.GetRandom(COLORS)
         };
     }
@@ -167,7 +173,7 @@ class MainScene extends Phaser.Scene {
         for (let i = 0; i < this.nextQueue.length; i++) {
             const data = this.nextQueue[i];
             // const previewBox = new Box(this, SCREEN_WIDTH - 100, 100 + i * 80, data.number, data.color);
-            const previewBox = new Box(this, GRID_WIDTH * CELL_SIZE + 60, 100 + i * 80, data.number, data.color);
+            const previewBox = new Box(this, SCREEN_WIDTH + 60, 100 + i * 80, data.number, data.color);
             previewBox.setScale(0.8); // 살짝 작게
             this.previewBoxes.push(previewBox);
         }
@@ -255,8 +261,8 @@ class MainScene extends Phaser.Scene {
 
 const config = {
     type: Phaser.AUTO,
-    width: GRID_WIDTH * CELL_SIZE + 150,  // 오른쪽 공간 확보
-    height: GRID_HEIGHT * CELL_SIZE,
+    width: SCREEN_WIDTH + 150,  // 오른쪽 공간 확보
+    height: SCREEN_HEIGHT,
     backgroundColor: '#000000',
     scene: MainScene,
 };
