@@ -267,8 +267,12 @@ class MainScene extends Phaser.Scene {
                             this.scoreText.setText('Score: ' + this.score);
     
                             group.forEach(([gx, gy]) => {
-                                this.grid[gx][gy].destroyBox();
-                                this.grid[gx][gy] = null;
+                                const box = this.grid[gx][gy];
+                                if (box) {
+                                    this.showExplosion(box.x, box.y); // ⭐ 박스 터질 때 폭발 이펙트 추가
+                                    box.destroyBox();
+                                    this.grid[gx][gy] = null;
+                                }
                             });
                             hasRemoved = true;
                         }
@@ -341,6 +345,22 @@ class MainScene extends Phaser.Scene {
             ease: 'Power1',
             onComplete: () => {
                 this.comboText.setVisible(false);
+            }
+        });
+    }
+
+    showExplosion(x, y) {
+        const explosion = this.add.circle(x, y, 10, 0xffff00); // 노란색 원
+        explosion.setAlpha(0.8);
+    
+        this.tweens.add({
+            targets: explosion,
+            radius: 30,
+            alpha: 0,
+            duration: 500,
+            ease: 'Power1',
+            onComplete: () => {
+                explosion.destroy();
             }
         });
     }
