@@ -201,28 +201,37 @@ class MainScene extends Phaser.Scene {
     }
 
     checkAndRemoveGroups() {
-        let visited = Array.from({ length: GRID_WIDTH }, () => Array(GRID_HEIGHT).fill(false));
-
-        for (let x = 0; x < GRID_WIDTH; x++) {
-            for (let y = 0; y < GRID_HEIGHT; y++) {
-                if (this.grid[x][y] && !visited[x][y]) {
-                    let group = this.findGroup(x, y, visited);
-                    let sum = group.reduce((acc, [gx, gy]) => acc + this.grid[gx][gy].number, 0);
-                    if (sum > 0 && sum % 10 === 0) {
-                        // 점수 계산
-                        this.score += group.length * 10;
-                        this.scoreText.setText('Score: ' + this.score);
-                    
-                        // 그룹 삭제
-                        group.forEach(([gx, gy]) => {
-                            this.grid[gx][gy].destroyBox();
-                            this.grid[gx][gy] = null;
-                        });
-                        this.applyGravity();
+        let hasRemoved = false;
+    
+        do {
+            hasRemoved = false;
+            let visited = Array.from({ length: GRID_WIDTH }, () => Array(GRID_HEIGHT).fill(false));
+    
+            for (let x = 0; x < GRID_WIDTH; x++) {
+                for (let y = 0; y < GRID_HEIGHT; y++) {
+                    if (this.grid[x][y] && !visited[x][y]) {
+                        let group = this.findGroup(x, y, visited);
+                        let sum = group.reduce((acc, [gx, gy]) => acc + this.grid[gx][gy].number, 0);
+                        if (sum > 0 && sum % 10 === 0) {
+                            // ✅ 점수 추가
+                            this.score += group.length * 10;
+                            this.scoreText.setText('Score: ' + this.score);
+    
+                            group.forEach(([gx, gy]) => {
+                                this.grid[gx][gy].destroyBox();
+                                this.grid[gx][gy] = null;
+                            });
+                            hasRemoved = true;
+                        }
                     }
                 }
             }
-        }
+    
+            if (hasRemoved) {
+                this.applyGravity();
+            }
+    
+        } while (hasRemoved);
     }
 
     findGroup(x, y, visited) {
