@@ -254,9 +254,15 @@ class MainScene extends Phaser.Scene {
     
         } while (hasRemoved);
     
-        // ⭐ 연쇄가 2번 이상 터진 경우만 콤보 표시
+        // ⭐ 콤보 연쇄 끝난 후
         if (this.comboCount >= 2) {
+            // 콤보 텍스트 띄우기
             this.showComboText(this.comboCount);
+    
+            // ✅ 콤보 보너스 점수 추가
+            const bonusScore = this.comboCount * 50;
+            this.score += bonusScore;
+            this.scoreText.setText('Score: ' + this.score);
         }
     }
 
