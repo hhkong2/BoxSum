@@ -52,6 +52,8 @@ class MainScene extends Phaser.Scene {
         this.previewBoxes = []; // 화면에 그리는 프리뷰 박스들
         this.score = 0;
         this.scoreText = null;
+        this.comboCount = 0;
+        this.comboText = null;
     }
 
     preload() {}
@@ -92,6 +94,23 @@ class MainScene extends Phaser.Scene {
                 fontStyle: 'bold',
             }
         );
+
+        // 연쇄 텍스트 표시
+        this.comboText = this.add.text(
+            SCREEN_WIDTH / 2,
+            SCREEN_HEIGHT / 2,
+            '',
+            {
+                fontSize: '40px',
+                color: '#ffcc00',
+                fontFamily: 'Arial',
+                fontStyle: 'bold',
+                stroke: '#000000',
+                strokeThickness: 6,
+            }
+        ).setOrigin(0.5);
+        
+        this.comboText.setVisible(false);
 
 
         this.input.keyboard.on('keydown-LEFT', () => {
@@ -202,6 +221,7 @@ class MainScene extends Phaser.Scene {
 
     checkAndRemoveGroups() {
         let hasRemoved = false;
+        this.comboCount = 0; // ⭐ 연쇄 시작할 때 0으로 초기화
     
         do {
             hasRemoved = false;
@@ -228,10 +248,16 @@ class MainScene extends Phaser.Scene {
             }
     
             if (hasRemoved) {
+                this.comboCount++;
                 this.applyGravity();
             }
     
         } while (hasRemoved);
+    
+        // ⭐ 연쇄가 2번 이상 터진 경우만 콤보 표시
+        if (this.comboCount >= 2) {
+            this.showComboText(this.comboCount);
+        }
     }
 
     findGroup(x, y, visited) {
@@ -265,6 +291,23 @@ class MainScene extends Phaser.Scene {
                 }
             }
         }
+    }
+    
+    showComboText(count) {
+        this.comboText.setText('Combo x' + count + '!');
+        this.comboText.setVisible(true);
+        this.comboText.setAlpha(1);
+    
+        // 부드럽게 페이드 아웃
+        this.tweens.add({
+            targets: this.comboText,
+            alpha: 0,
+            duration: 1000,
+            ease: 'Power1',
+            onComplete: () => {
+                this.comboText.setVisible(false);
+            }
+        });
     }
 }
 
