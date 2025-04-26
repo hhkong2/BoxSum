@@ -54,6 +54,8 @@ class MainScene extends Phaser.Scene {
         this.scoreText = null;
         this.comboCount = 0;
         this.comboText = null;
+        this.isThinking = false;
+        this.thinkingText = null;
     }
 
     preload() {}
@@ -112,8 +114,26 @@ class MainScene extends Phaser.Scene {
         
         this.comboText.setVisible(false);
 
+        // Thinking.. Text 표시
+        this.thinkingText = this.add.text(
+            SCREEN_WIDTH / 2,
+            SCREEN_HEIGHT / 2,
+            'Thinking...',
+            {
+                fontSize: '40px',
+                color: '#00ccff',
+                fontFamily: 'Arial',
+                fontStyle: 'bold',
+                stroke: '#000000',
+                strokeThickness: 6,
+            }
+        ).setOrigin(0.5);
+        
+        this.thinkingText.setVisible(false); // 처음에는 안 보이게
+
 
         this.input.keyboard.on('keydown-LEFT', () => {
+            if (this.isThinking) return;  // 🧠 생각 중이면 입력 무시
             if (this.fallingX > 0 && !this.grid[this.fallingX - 1][this.fallingY]) {
                 this.fallingX--;
                 this.updateFallingBoxPosition();
@@ -121,6 +141,7 @@ class MainScene extends Phaser.Scene {
         });
         
         this.input.keyboard.on('keydown-RIGHT', () => {
+            if (this.isThinking) return;  // 🧠 생각 중이면 입력 무시
             if (this.fallingX < GRID_WIDTH - 1 && !this.grid[this.fallingX + 1][this.fallingY]) {
                 this.fallingX++;
                 this.updateFallingBoxPosition();
@@ -128,6 +149,7 @@ class MainScene extends Phaser.Scene {
         });
         
         this.input.keyboard.on('keydown-DOWN', () => {
+            if (this.isThinking) return;  // 🧠 생각 중이면 입력 무시
             if (this.canMoveDown()) {
                 this.fallingY++;
                 this.updateFallingBoxPosition();
@@ -135,6 +157,7 @@ class MainScene extends Phaser.Scene {
         });
         
         this.input.keyboard.on('keydown-UP', () => {
+            if (this.isThinking) return;  // 🧠 생각 중이면 입력 무시
             while (this.canMoveDown()) {
                 this.fallingY++;
             }
@@ -142,6 +165,10 @@ class MainScene extends Phaser.Scene {
             this.lockBox();
             this.checkAndRemoveGroups();
             this.spawnNewBox();
+        });
+        this.input.keyboard.on('keydown-SPACE', () => {
+            this.isThinking = !this.isThinking;
+            this.thinkingText.setVisible(this.isThinking);
         });
 
         this.time.addEvent({
@@ -199,6 +226,8 @@ class MainScene extends Phaser.Scene {
     }
 
     updateFall() {
+        if (this.isThinking) return;  // ⭐ 생각 모드일 때는 낙하 멈춤!
+    
         if (this.canMoveDown()) {
             this.fallingY++;
             this.fallingBox.moveTo(this.fallingX * CELL_SIZE + CELL_SIZE/2, this.fallingY * CELL_SIZE + CELL_SIZE/2);
